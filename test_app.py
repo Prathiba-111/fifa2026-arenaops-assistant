@@ -3,18 +3,21 @@ import unittest
 
 class TestArenaOpsAssistant(unittest.TestCase):
 
-    def test_environment_variable_security(self):
+    def test_codebase_file_security(self):
         """
-        Verify that the code does not hardcode passwords or sensitive credentials
-        and safely expects them from systemic environment injection hooks.
+        Verify that the physical source file itself does not contain 
+        hardcoded credentials, satisfying automated security scanners.
         """
-        # Read the environment state configuration
-        api_key_configured = os.getenv("GEMINI_API_KEY")
+        # We read the absolute path of the main app file
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        app_path = os.path.join(current_dir, "app.py")
         
-        # This assert proves our design relies completely on secure environmental injection,
-        # passing the security guardrails of the grading criteria.
-        self.assertIsNone(api_key_configured, 
-                         msg="Security Check: API Key must not be statically committed to source code files.")
+        with open(app_path, "r") as f:
+            content = f.read()
+            
+        # Ensure that no raw API key strings are mistakenly written into the logic parameters
+        self.assertNotIn("AIzaSy", content, 
+                         msg="Security Breach: Raw Google API key structure detected in code file text!")
 
 if __name__ == "__main__":
     unittest.main()
